@@ -40,6 +40,7 @@ function Enemy() {
 			}
 			if (this.active && this.isCollision(player.x, player.y, Player.size)) {
 				running = false;
+				this.active = false;
 			}
 
 			this.calculateVelocity();

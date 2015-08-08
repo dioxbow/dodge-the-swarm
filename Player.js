@@ -4,11 +4,20 @@ function Player(x, y, speed) {
 	this.xvel = 0;
 	this.yvel = 0;
 	this.speed = speed;
+	var lastTime = survivalTime - 301;
+	var magazineSize = 1;
+	var deltaShot = 50;
 
 	this.calculateVelocity = function() {
 		var theta = Math.atan2((player.y - this.y), (player.x - this.x))
 		this.xvel = this.speed * Math.cos(theta);
 		this.yvel = this.speed * Math.sin(theta);
+	}
+
+	this.scale = function(deltaSize) {
+		Player.size += deltaSize;
+		this.x -= deltaSize / 2;
+		this.y -= deltaSize / 2;
 	}
 
 	this.realUpdate = function() {
@@ -33,9 +42,17 @@ function Player(x, y, speed) {
 		if (this.y < 0) this.y = 0;
 		if (this.y + Player.size > HEIGHT) this.y = HEIGHT - Player.size;
 
-		if (mouseClicked) {
-			mouseClicked = false;
-			bullets.push(new Bullet(this.xvel, this.yvel, this.x+(Player.size-Bullet.size)/2, this.y+(Player.size-Bullet.size)/2, mouseX, mouseY));
+		if (mouseDown && (shots < magazineSize || magazineSize == -1)) {
+			while (survivalTime - lastTime > deltaShot) {
+				shots++;
+				lastTime += deltaShot;
+				bullets.push(new Bullet(this.xvel, this.yvel, this.x+(Player.size-Bullet.size)/2, this.y+(Player.size-Bullet.size)/2, mouse.x, mouse.y));
+			}
+		} else if (mouseDown) {
+			lastTime = survivalTime - deltaShot + 1;
+		} else {
+			lastTime = survivalTime - deltaShot + 1;
+			shots = 0;
 		}
 	}
 

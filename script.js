@@ -2,14 +2,15 @@ var WIDTH, HEIGHT = WIDTH;
 var running, ready;
 var frames, fps, secTimer, lastTime, survivalTime, spawnTimer;
 var canvas, ctx, keystate
-var mouseClicked, mouseY, mouseY, keys;
+var mouseDown, mouse, keys;
 var player, bullets, enemies;
 
 
 function main() {
 	WIDTH = 800;
 	HEIGHT = WIDTH * 9/16
-	mouseClicked = false;
+	mouseDown = false;
+	mouse = {x: null, y: null};
 	survivalTime = 0;
 	running = false;
 	ready = true;
@@ -28,13 +29,23 @@ function main() {
 	document.addEventListener("keyup", function(event) {
 		delete keystate[event.keyCode];
 	})
-	document.addEventListener("click", function(event) {
-		mouseX = event.clientX - canvas.getBoundingClientRect().left;
-		mouseY = event.clientY - canvas.getBoundingClientRect().top;
-		if (running && mouseX > 0 && mouseX < WIDTH && mouseY > 0 && mouseY < HEIGHT) mouseClicked = true;
+	document.addEventListener("mousedown", function(event) {
+		mouse = {
+			x: event.clientX - canvas.getBoundingClientRect().left,
+			y: event.clientY - canvas.getBoundingClientRect().top
+		}
+		if (running && mouse.x > 0 && mouse.x < WIDTH && mouse.y > 0 && mouse.y < HEIGHT) mouseDown = true;
+	});
+	document.addEventListener("mousemove", function(event) {
+		mouse.x = event.clientX - canvas.getBoundingClientRect().left;
+		mouse.y = event.clientY - canvas.getBoundingClientRect().top;
+	});
+	document.addEventListener("mouseup", function(event) {
+		mouseDown = false;
 	});
 	document.addEventListener("contextmenu", function(event) {
 		keystate = {};
+		mouseDown = false;
 	})
 
 	if (localStorage.getItem("record") === null) {
@@ -104,7 +115,7 @@ function init() {
 	}
 
 	document.addEventListener("click", function(event) {
-		if (!running && ready && mouseX > 0 && mouseX < WIDTH && mouseY > 0 && mouseY < HEIGHT) {
+		if (!running && ready && mouse.x > 0 && mouse.x < WIDTH && mouse.y > 0 && mouse.y < HEIGHT) {
 			running=true;
 			frames=0;
 			fps=0;
