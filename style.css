@@ -1,4 +1,18 @@
 canvas {
 	margin: auto;
 	display: block;
+	user-select: none; /* general */
+	-ms-user-select: none; /* Internet Explorer */
+	-webkit-user-select: none; /* Chrome, Safari, Opera */
+	-khtml-user-select: none; /* KHTML browsers */
+	-moz-user-select: none; /* Firefox */
+	-webkit-touch-callout: none; /* Android, iOS */
+
+}
+
+h1 {
+	font-family: "Verdana", sans-serif;
+	text-align: center;
+	margin: auto;
+	margin-bottom: 10px;
 }
