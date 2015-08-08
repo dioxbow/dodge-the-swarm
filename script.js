@@ -37,7 +37,7 @@ function main() {
 		keystate = {};
 	})
 
-	if (localStorage.getItem("record") === null || true) {
+	if (localStorage.getItem("record") === null) {
 		localStorage.setItem("record", "0");
 	}
 
