@@ -150,7 +150,6 @@ function render() {
 	ctx.save();
 
 	ctx.fillStyle = "#ffffff";
-
 	for (var i = 0; i < bullets.length; i++) {
 		bullets[i].draw();
 	}
