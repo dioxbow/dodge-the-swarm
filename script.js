@@ -65,8 +65,12 @@ function init() {
 	if (survivalTime == 0) {
 		ctx.font = "16px Verdana, sans-serif";
 		ctx.fillText("Use either W-A-S-D or the arrow keys to move.", WIDTH/2, 48);
-		ctx.fillText("Click to shoot the red squares, and be sure not to touch them.", WIDTH/2, 70);
+		ctx.fillText("Click to shoot at the red squares, and be sure not to touch them.", WIDTH/2, 70);
 		ctx.fillText("Press P to pause and R to resume. Have fun!", WIDTH/2, 92);
+		ctx.fillStyle = "#00ff00";
+		ctx.font = "15px Verdana, sans-serif";
+		ctx.fillText("Record: " + getSurvivalTime(localStorage.getItem("record")), WIDTH/2, 130)
+		ctx.fillStyle = "#ffffff"
 		ctx.font = "50px Verdana, sans-serif";
 		ctx.textBaseline = "middle";
 		ctx.fillText("Click to start!", WIDTH/2, HEIGHT/2);
