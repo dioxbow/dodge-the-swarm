@@ -1,6 +1,6 @@
 var WIDTH, HEIGHT = WIDTH;
 var running, ready;
-var frames, fps, secTimer, lastTime, survivalTime, spawnTimer, minutes, seconds, centiseconds;
+var frames, fps, secTimer, lastTime, survivalTime, spawnTimer;
 var canvas, ctx, keystate
 var mouseClicked, mouseY, mouseY, keys;
 var player, bullets, enemies;
@@ -37,6 +37,10 @@ function main() {
 		keystate = {};
 	})
 
+	if (localStorage.getItem("record") === null) {
+		localStorage.setItem("record", "0");
+	}
+
 	init();
 }
 
@@ -56,6 +60,7 @@ function init() {
 	ctx.fillRect(0, 0, WIDTH, HEIGHT);
 	ctx.save();
 	ctx.fillStyle = "#ffffff";
+	ctx.font = "50px Verdana, sans-serif";
 	ctx.textAlign = "center";
 	if (survivalTime == 0) {
 		ctx.font = "16px Verdana, sans-serif";
@@ -68,11 +73,23 @@ function init() {
 		ctx.restore();
 	} else {
 		ready = false;
-		ctx.font = "30px Verdana, sans-serif";
-		ctx.fillText("You died at", WIDTH/2, 45);
-		ctx.font = "50px Verdana, sans-serif";
-		ctx.fillText(minutes+":"+seconds+"."+centiseconds, WIDTH/2, 100);
-		ctx.fillStyle = "#ffffff";
+		ctx.save();
+		if (survivalTime.toString() != localStorage.getItem("record")) {
+			ctx.font = "30px Verdana, sans-serif";
+			ctx.fillText("You died at", WIDTH/2, 45);
+			ctx.font = "50px Verdana, sans-serif";
+			ctx.fillText(getSurvivalTime(survivalTime), WIDTH/2, 100);
+			ctx.fillStyle = "#00ff00";
+			ctx.font = "15px Verdana, sans-serif";
+			ctx.fillText("Record: " + getSurvivalTime(localStorage.getItem("record")), WIDTH/2, 130);
+		} else {
+			ctx.fillStyle = "#00ff00";
+			ctx.font = "30px Verdana, sans-serif";
+			ctx.fillText("New record at", WIDTH/2, 45);
+			ctx.font = "50px Verdana, sans-serif";
+			ctx.fillText(getSurvivalTime(survivalTime), WIDTH/2, 100);
+		}
+		ctx.restore();
 		ctx.textBaseline = "middle";
 
 		setTimeout(function() {
@@ -99,6 +116,7 @@ function init() {
 function loop() {
 	survivalTime += new Date().getTime() - lastTime;
 	lastTime = new Date().getTime();
+	if (survivalTime > localStorage.getItem("record")) localStorage.setItem("record", survivalTime.toString());
 	update();
 	render();
 	frames++;
@@ -141,12 +159,9 @@ function render() {
 	}
 	player.draw();
 
-	minutes = (Math.floor(survivalTime/60000));
-	seconds = ("0" + Math.floor((survivalTime % 60000) / 1000)).slice(-2);
-	centiseconds = ("0" + Math.floor(((survivalTime % 60000) % 1000) / 10)).slice(-2);
 	ctx.font = "50px Verdana, sans-serif";
 	ctx.textAlign = "center";
-	ctx.fillText(minutes+":"+seconds+"."+centiseconds, WIDTH/2, 100);
+	ctx.fillText(getSurvivalTime(survivalTime), WIDTH/2, 100);
 
 	ctx.restore();
 }
@@ -158,6 +173,13 @@ function checkPaused() {
 		loop();
 	}
 	else window.requestAnimationFrame(checkPaused);
+}
+
+function getSurvivalTime(time) {
+	var minutes = (Math.floor(time/60000));
+	var seconds = ("0" + Math.floor((time % 60000) / 1000)).slice(-2);
+	var centiseconds = ("0" + Math.floor(((time % 60000) % 1000) / 10)).slice(-2);
+	return minutes+":"+seconds+"."+centiseconds;
 }
 
 main();
