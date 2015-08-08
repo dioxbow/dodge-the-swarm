@@ -37,7 +37,7 @@ function main() {
 		keystate = {};
 	})
 
-	if (localStorage.getItem("record") === null) {
+	if (localStorage.getItem("record") === null && true) {
 		localStorage.setItem("record", "0");
 	}
 
@@ -129,8 +129,9 @@ function loop() {
 		secTimer += 1000;
 		frames = 0;
 	}
-	if (new Date().getTime() - spawnTimer > 1000 - survivalTime/100) {
-		spawnTimer += 1000 - survivalTime/100;
+	var deltaSpawn = 10000 * Math.pow(survivalTime, -1/3);
+	if (new Date().getTime() - spawnTimer > deltaSpawn) {
+		spawnTimer += deltaSpawn;
 		enemies.push(new Enemy());
 	}
 	if (keystate[keys.P]) window.requestAnimationFrame(checkPaused);
