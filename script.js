@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 var WIDTH, HEIGHT = WIDTH;
 var running, ready;
 var frames, fps, secTimer, lastTime, survivalTime, spawnTimer;
