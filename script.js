@@ -1,6 +1,6 @@
 var WIDTH, HEIGHT = WIDTH;
 var running, ready;
-var frames, fps, secTimer, lastTime, survivalTime, spawnTimer;
+var frames, fps, secTimer, lastTime, survivalTime, spawnTimer, paused;
 var canvas, ctx, keystate
 var mouseDown, mouse, keys;
 var player, bullets, enemies;
@@ -47,15 +47,15 @@ function main() {
 		keystate = {};
 		mouseDown = false;
 	})
-
-	if (localStorage.getItem("record") === null) {
-		localStorage.setItem("record", "0");
-	}
-
+	
 	init();
 }
 
 function init() {
+	paused = false;
+	keystate = {};
+	mouseDown = false;
+
 	Player.size = 20;
 	player = new Player((WIDTH - Player.size) / 2, (HEIGHT - Player.size) / 2, 2);
 	playerGhost = new Player((WIDTH - Player.size) / 2, (HEIGHT - Player.size) / 2, 1);
@@ -75,41 +75,41 @@ function init() {
 	ctx.textAlign = "center";
 	if (survivalTime == 0) {
 		ctx.font = "16px Verdana, sans-serif";
-		ctx.fillText("Use either W-A-S-D or the arrow keys to move.", WIDTH/2, 48);
-		ctx.fillText("Click to shoot at the red squares, and be sure not to touch them.", WIDTH/2, 70);
-		ctx.fillText("Press P to pause and R to resume. Have fun!", WIDTH/2, 92);
+		printText("Use either W-A-S-D or the arrow keys to move.", WIDTH/2, 48);
+		printText("Click to shoot at the red squares, and be sure not to touch them.", WIDTH/2, 70);
+		printText("Press the space bar to pause and click the screen to resume. Have fun!", WIDTH/2, 92);
 		ctx.fillStyle = "#00ff00";
 		ctx.font = "15px Verdana, sans-serif";
-		ctx.fillText("Record: " + getSurvivalTime(localStorage.getItem("record")), WIDTH/2, 130)
-		ctx.fillStyle = "#ffffff"
+		printText("Record: " + getSurvivalTime(getRecord()), WIDTH/2, 130);
+		ctx.fillStyle = "#ffffff";
 		ctx.font = "50px Verdana, sans-serif";
 		ctx.textBaseline = "middle";
-		ctx.fillText("Click to start!", WIDTH/2, HEIGHT/2);
+		printText("Click to start!", WIDTH/2, HEIGHT/2);
 		ctx.restore();
 	} else {
 		ready = false;
 		ctx.save();
-		if (survivalTime.toString() != localStorage.getItem("record")) {
+		if (survivalTime != getRecord()) {
 			ctx.font = "30px Verdana, sans-serif";
-			ctx.fillText("You died at", WIDTH/2, 45);
+			printText("You died at", WIDTH/2, 45);
 			ctx.font = "50px Verdana, sans-serif";
-			ctx.fillText(getSurvivalTime(survivalTime), WIDTH/2, 100);
+			printText(getSurvivalTime(survivalTime), WIDTH/2, 100);
 			ctx.fillStyle = "#00ff00";
 			ctx.font = "15px Verdana, sans-serif";
-			ctx.fillText("Record: " + getSurvivalTime(localStorage.getItem("record")), WIDTH/2, 130);
+			printText("Record: " + getSurvivalTime(getRecord()), WIDTH/2, 130);
 		} else {
 			ctx.fillStyle = "#00ff00";
 			ctx.font = "30px Verdana, sans-serif";
-			ctx.fillText("New record at", WIDTH/2, 45);
+			printText("New record at", WIDTH/2, 45);
 			ctx.font = "50px Verdana, sans-serif";
-			ctx.fillText(getSurvivalTime(survivalTime), WIDTH/2, 100);
+			printText(getSurvivalTime(survivalTime), WIDTH/2, 100);
 		}
 		ctx.restore();
 		ctx.textBaseline = "middle";
 
 		setTimeout(function() {
 			ready = true;
-			ctx.fillText("Click to try again!", WIDTH/2, HEIGHT/2);
+			printText("Click to try again!", WIDTH/2, HEIGHT/2);
 			ctx.restore();
 		}, 1000);
 	}
@@ -131,7 +131,13 @@ function init() {
 function loop() {
 	survivalTime += new Date().getTime() - lastTime;
 	lastTime = new Date().getTime();
-	if (survivalTime > localStorage.getItem("record")) localStorage.setItem("record", survivalTime.toString());
+	if (typeof getRecord() == "number") {
+		if (survivalTime > getRecord()) setRecord(survivalTime);
+	} else if (getRecord() == "hacked record") {
+		// Yes I know the other alert has a :), not a ;) -- this is so debugging is quicker ;)
+		alert("If you want to hack the game, you'll have to put in a bit more effort :)");
+		setRecord(survivalTime);
+	}
 	update();
 	render();
 	frames++;
@@ -145,7 +151,13 @@ function loop() {
 		spawnTimer += deltaSpawn;
 		enemies.push(new Enemy());
 	}
-	if (keystate[keys.P]) window.requestAnimationFrame(checkPaused);
+	paused = document.hasFocus();
+	if (keystate[keys.P] || keystate[keys.space] || !paused) {
+		paused = true;
+		keystate = {};
+		mouseDown = false;
+		window.requestAnimationFrame(function() {checkPaused(true)});
+	}
 	else if (running) window.requestAnimationFrame(loop);
 	else init();
 }
@@ -176,25 +188,108 @@ function render() {
 
 	ctx.font = "50px Verdana, sans-serif";
 	ctx.textAlign = "center";
-	ctx.fillText(getSurvivalTime(survivalTime), WIDTH/2, 100);
-
+	printText(getSurvivalTime(survivalTime), WIDTH/2, 100);
 	ctx.restore();
 }
 
-function checkPaused() {
-	if (keystate[keys.R]) {
+function checkPaused(firstLoop) {
+	if (firstLoop) {
+		ctx.save();
+		ctx.font = "50px Verdana, sans-serif";
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillStyle = "#ffffff";
+		printText("Click to resume...", WIDTH/2, HEIGHT/2);
+		
+		ctx.restore();
+	}
+	if (keystate[keys.R] || mouseDown == true) {
 		spawnTimer = new Date().getTime();
 		lastTime = new Date().getTime();
+		paused = false;
 		loop();
 	}
-	else window.requestAnimationFrame(checkPaused);
+	else {
+		window.requestAnimationFrame(function() {checkPaused(false)});
+	}
 }
 
 function getSurvivalTime(time) {
-	var minutes = (Math.floor(time/60000));
-	var seconds = ("0" + Math.floor((time % 60000) / 1000)).slice(-2);
-	var centiseconds = ("0" + Math.floor(((time % 60000) % 1000) / 10)).slice(-2);
-	return minutes+":"+seconds+"."+centiseconds;
+	if (typeof time == "number") {
+		var minutes = (Math.floor(time/60000));
+		var seconds = ("0" + Math.floor((time % 60000) / 1000)).slice(-2);
+		var centiseconds = ("0" + Math.floor(((time % 60000) % 1000) / 10)).slice(-2);
+		return minutes+":"+seconds+"."+centiseconds;
+	} else if (typeof time == "string") {
+		if (time == "no storage") {
+			return "Sorry, your browser does not support record storage";
+		} else if (time == "hacked record") {
+			// Yes I know the other alert has a :), not a ;) -- this is so debugging is quicker :)
+			alert("If you want to hack the game, you'll have to put in a bit more effort ;)");
+			setRecord(survivalTime);
+			return getSurvivalTime(getRecord());
+		}
+	}
+}
+
+function printText(text, x, y) {
+	ctx.save();
+	ctx.lineWidth = 2;
+	ctx.strokeText(text, x, y);
+	ctx.fillText(text, x, y);
+	ctx.restore();
+}
+
+function getRecord() {
+	try {
+		localStorage.setItem("support?", "yes");
+		if (localStorage.getItem("support?") != null) {
+			localStorage.removeItem("support?");
+			if (localStorage.getItem("record") == null) setRecord(0);
+			return decryptRecord(Number(localStorage.getItem("record")));
+		}
+		else {
+			return "no storage";
+		}
+	} catch (e) {
+		return "no storage";
+	}
+}
+
+function setRecord(record) {
+	try {
+		localStorage.setItem("support?", "yes");
+		if (localStorage.getItem("support?") != null) {
+			localStorage.removeItem("support?");
+			localStorage.setItem("record", encryptRecord(record).toString());
+		}
+		else {
+			// missing support for HTML5 localStorage is dealt with in getRecord()
+		}
+	} catch (e) {
+		// missing support for HTML5 localStorage is dealt with in getRecord()
+	}
+}
+
+/*
+This "encryption" stuff isn't meant to be secure, it's meant to
+prevent people who don't understand javascript from "hacking" the game.
+I'm not worried about you programmers though -- surely you are all above
+boasting to your friends about how "awesome" you are at this little game ;)
+*/
+function encryptRecord(number) {
+	// see comment above
+	return number *= 5915587277;
+}
+
+function decryptRecord(number) {
+	// see comment above
+	if (number % 5915587277 == 0) {
+		return number / 5915587277;
+	}
+	else {
+		return "hacked record";
+	}
 }
 
 main();

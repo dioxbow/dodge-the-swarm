@@ -1,7 +1,7 @@
 canvas {
 	margin: auto;
 	display: block;
-	user-select: none; /* general */
+	user-select: none;
 	-ms-user-select: none; /* Internet Explorer */
 	-webkit-user-select: none; /* Chrome, Safari, Opera */
 	-khtml-user-select: none; /* KHTML browsers */
