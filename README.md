@@ -1,4 +1,4 @@
-# Repel the Swarm
+# Dodge the Swarm
 Shoot and outmaneuver a swarm of enemies to survive. [Play it here!](http://dioxbow.github.io/repel-the-swarm/)
 
 # Instructions
