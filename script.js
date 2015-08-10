@@ -1,20 +1,20 @@
 var WIDTH, HEIGHT = WIDTH;
 var running, ready;
 var frames, fps, secTimer, lastTime, survivalTime, spawnTimer, paused;
-var canvas, ctx, keystate
+var canvas, ctx, keystate;
 var mouseDown, mouse, keys;
 var player, bullets, enemies;
 
 
 function main() {
 	WIDTH = 800;
-	HEIGHT = WIDTH * 9/16
+	HEIGHT = WIDTH * 9/16;
 	mouseDown = false;
 	mouse = {x: null, y: null};
 	survivalTime = 0;
 	running = false;
 	ready = true;
-	keys  = {left: 37, up: 38, right: 39, down: 40, W: 87, A: 65, S: 83, D: 68, space: 32, P: 80, R: 82}
+	keys  = {left: 37, up: 38, right: 39, down: 40, W: 87, A: 65, S: 83, D: 68, space: 32, P: 80, R: 82};
 
 	canvas = document.createElement("canvas");
 	canvas.width = WIDTH;
