@@ -153,9 +153,6 @@ function loop() {
 	}
 	paused = document.hasFocus();
 	if (keystate[keys.P] || keystate[keys.space] || !paused) {
-		paused = true;
-		keystate = {};
-		mouseDown = false;
 		window.requestAnimationFrame(function() {checkPaused(true)});
 	}
 	else if (running) window.requestAnimationFrame(loop);
@@ -194,13 +191,15 @@ function render() {
 
 function checkPaused(firstLoop) {
 	if (firstLoop) {
+		paused = true;
+		keystate = {};
+		mouseDown = false;
 		ctx.save();
 		ctx.font = "50px Verdana, sans-serif";
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 		ctx.fillStyle = "#ffffff";
 		printText("Click to resume...", WIDTH/2, HEIGHT/2);
-		
 		ctx.restore();
 	}
 	if (keystate[keys.R] || mouseDown == true) {
